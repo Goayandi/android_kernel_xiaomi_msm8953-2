@@ -228,6 +228,7 @@ struct msm8916_asoc_mach_data {
 	int ext_pa;
 	int us_euro_gpio;
 	int spk_ext_pa_gpio;
+	int hd_ext_pa_gpio;
 	int mclk_freq;
 	int lb_mode;
 	int afe_clk_ver;
@@ -315,6 +316,7 @@ struct msm8x16_wcd_priv {
 	struct fw_info *fw_data;
 	struct blocking_notifier_head notifier;
 	int (*codec_spk_ext_pa_cb)(struct snd_soc_codec *codec, int enable);
+	int (*codec_hd_ext_pa_cb)(struct snd_soc_codec *codec, int enable);
 	int (*codec_hph_comp_gpio)(bool enable);
 	unsigned long status_mask;
 	struct wcd_imped_i_ref imped_i_ref;
@@ -333,6 +335,10 @@ extern void msm8x16_update_int_spk_boost(bool enable);
 
 extern void msm8x16_wcd_spk_ext_pa_cb(
 		int (*codec_spk_ext_pa)(struct snd_soc_codec *codec,
+		int enable), struct snd_soc_codec *codec);
+
+extern void msm8x16_wcd_hd_ext_pa_cb(
+		int (*codec_hd_ext_pa)(struct snd_soc_codec *codec,
 		int enable), struct snd_soc_codec *codec);
 
 extern void msm8x16_wcd_hph_comp_cb(
