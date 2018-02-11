@@ -180,7 +180,7 @@ static void mdss_dsi_panel_apply_settings(struct mdss_dsi_ctrl_pdata *ctrl,
 	mdss_dsi_cmdlist_put(ctrl, &cmdreq);
 }
 
-static void mdss_dsi_panel_cmds_send(struct mdss_dsi_ctrl_pdata *ctrl,
+void mdss_dsi_panel_cmds_send(struct mdss_dsi_ctrl_pdata *ctrl,
 			struct dsi_panel_cmds *pcmds, u32 flags)
 {
 	struct dcs_cmd_req cmdreq;
@@ -480,24 +480,34 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 			gpio_set_value((ctrl_pdata->disp_en_gpio), 0);
 			gpio_free(ctrl_pdata->disp_en_gpio);
 		}
-		gpio_set_value((ctrl_pdata->rst_gpio), 0);
-		gpio_free(ctrl_pdata->rst_gpio);
-		if (gpio_is_valid(ctrl_pdata->mode_gpio))
-			gpio_free(ctrl_pdata->mode_gpio);
+
+		if ((panel_suspend_reset_flag == 2) || ((panel_suspend_reset_flag == 3) && (ft8716_gesture_func_on == 0))) {
+			if (ft8716_suspend || (panel_suspend_reset_flag == 2)) {
+				printk("set rst \n");
+				gpio_set_value((ctrl_pdata->rst_gpio), 1);
+				msleep(10);
+				gpio_set_value((ctrl_pdata->rst_gpio), 0);
+				msleep(10);
+				gpio_set_value((ctrl_pdata->rst_gpio), 1);
+				msleep(10);
+				gpio_set_value((ctrl_pdata->rst_gpio), 0);
+				msleep(10);
+			}
+		} else if ((panel_suspend_reset_flag == 3) || (panel_suspend_reset_flag == 0)) {
+				gpio_set_value((ctrl_pdata->rst_gpio), 0);
+		}
 	}
 
 exit:
 	return rc;
 }
-
 /**
  * mdss_dsi_roi_merge() -  merge two roi into single roi
  *
  * Function used by partial update with only one dsi intf take 2A/2B
  * (column/page) dcs commands.
  */
-static int mdss_dsi_roi_merge(struct mdss_dsi_ctrl_pdata *ctrl,
-					struct mdss_rect *roi)
+int mdss_dsi_roi_merge(struct mdss_dsi_ctrl_pdata *ctrl, struct mdss_rect *roi)
 {
 	struct mdss_panel_info *l_pinfo;
 	struct mdss_rect *l_roi;
