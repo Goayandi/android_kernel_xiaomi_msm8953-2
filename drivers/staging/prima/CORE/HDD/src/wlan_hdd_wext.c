@@ -1635,7 +1635,7 @@ v_U8_t* wlan_hdd_get_vendor_oui_ie_ptr(v_U8_t *oui, v_U8_t oui_size, v_U8_t *ie,
                     eid,elem_len,left);
             return NULL;
         }
-        if ((elem_id == eid) && (elem_len >= oui_size))
+        if (elem_id == eid)
         {
             if(memcmp( &ptr[2], oui, oui_size)==0)
                 return ptr;
@@ -7065,7 +7065,6 @@ static int __iw_get_char_setnone(struct net_device *dev,
    *And currently it only checks P2P_CLIENT adapter.
    *P2P_DEVICE and P2P_GO have not been added as of now.
 */
-#ifdef TRACE_RECORD
         case WE_GET_STATES:
         {
             int buf = 0, len = 0;
@@ -7202,7 +7201,6 @@ static int __iw_get_char_setnone(struct net_device *dev,
             wrqu->data.length = strlen(extra)+1;
             break;
         }
-#endif
 
         case WE_GET_CFG:
         {
@@ -11579,10 +11577,6 @@ static const struct iw_priv_args we_private_args[] = {
         WLAN_GET_LINK_SPEED,
         IW_PRIV_TYPE_CHAR | 18,
         IW_PRIV_TYPE_CHAR | 5, "getLinkSpeed" },
-    {
-        WLAN_PRIV_SET_FTIES,
-        IW_PRIV_TYPE_CHAR | MAX_FTIE_SIZE,
-        0, "set_ft_ies"},
 };
 
 
