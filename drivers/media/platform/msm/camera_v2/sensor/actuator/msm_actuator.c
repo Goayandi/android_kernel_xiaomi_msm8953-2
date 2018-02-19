@@ -146,7 +146,7 @@ static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 			pr_err("failed: i2c table index out of bound\n");
 			break;
 		}
-		CDBG("i2c_byte1:0x%x, i2c_byte2:0x%x\n", i2c_byte1, i2c_byte2);
+		CDBG("i2c_byte1:0x%x, i2c_byte2:0x%x, i2c_byte1:%d, i2c_byte2:%d\n", i2c_byte1, i2c_byte2, i2c_byte1, i2c_byte2);
 		i2c_tbl[a_ctrl->i2c_tbl_index].reg_addr = i2c_byte1;
 		i2c_tbl[a_ctrl->i2c_tbl_index].reg_data = i2c_byte2;
 		i2c_tbl[a_ctrl->i2c_tbl_index].delay = delay;
@@ -829,6 +829,7 @@ static int32_t msm_actuator_park_lens(struct msm_actuator_ctrl_t *a_ctrl)
 			else
 				next_lens_pos = 0;
 		}
+
 		a_ctrl->func_tbl->actuator_parse_i2c_params(a_ctrl,
 			next_lens_pos, a_ctrl->park_lens.hw_params,
 			a_ctrl->park_lens.damping_delay);
@@ -847,10 +848,10 @@ static int32_t msm_actuator_park_lens(struct msm_actuator_ctrl_t *a_ctrl)
 		}
 		a_ctrl->i2c_tbl_index = 0;
 		/* Use typical damping time delay to avoid tick sound */
-		if (next_lens_pos > 100)
-			usleep_range(5000, 6000);
-		else
-			usleep_range(10000, 12000);
+				if (next_lens_pos > 100)
+					usleep_range(5000, 6000);
+				else
+					usleep_range(10000, 12000);
 	}
 
 	return 0;
@@ -1703,10 +1704,6 @@ static long msm_actuator_subdev_do_ioctl(
 			parg = &actuator_data;
 			break;
 		}
-		break;
-	case VIDIOC_MSM_ACTUATOR_CFG:
-		pr_err("%s: invalid cmd 0x%x received\n", __func__, cmd);
-		return -EINVAL;
 	}
 
 	rc = msm_actuator_subdev_ioctl(sd, cmd, parg);
@@ -1939,16 +1936,15 @@ static int32_t msm_actuator_platform_probe(struct platform_device *pdev)
 	}
 	rc = msm_sensor_driver_get_gpio_data(&(msm_actuator_t->gconf),
 		(&pdev->dev)->of_node);
-	if (-ENODEV == rc) {
-		pr_notice("No valid actuator GPIOs data\n");
-	} else if (rc < 0) {
-		pr_err("Error Actuator GPIOs\n");
+	if (rc < 0) {
+		pr_err("%s: No/Error Actuator GPIOs\n", __func__);
 	} else {
 		msm_actuator_t->cam_pinctrl_status = 1;
 		rc = msm_camera_pinctrl_init(
 			&(msm_actuator_t->pinctrl_info), &(pdev->dev));
 		if (rc < 0) {
-			pr_err("ERR: Error in reading actuator pinctrl\n");
+			pr_err("ERR:%s: Error in reading actuator pinctrl\n",
+				__func__);
 			msm_actuator_t->cam_pinctrl_status = 0;
 		}
 	}
