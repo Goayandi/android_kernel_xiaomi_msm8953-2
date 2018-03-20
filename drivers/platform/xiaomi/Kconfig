@@ -24,5 +24,3 @@ config MACH_XIAOMI_TIFFANY
 	select MACH_XIAOMI_MSM8953
 	help
 	  Support for Xiaomi MI 5X
-
-endmenu
